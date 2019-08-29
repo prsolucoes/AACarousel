@@ -22,18 +22,16 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2X1-7H-OdD" customClass="AACarousel" customModule="AACarousel" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="64" width="375" height="211"/>
+                                <rect key="frame" x="0.0" y="98" width="375" height="211"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" secondItem="2X1-7H-OdD" secondAttribute="height" multiplier="16:9" id="cO2-8a-VTq"/>
-                                </constraints>
                             </view>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="2X1-7H-OdD" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="eBM-Q4-kwv"/>
-                            <constraint firstItem="2X1-7H-OdD" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="g3A-T1-Lzf"/>
-                            <constraint firstAttribute="trailing" secondItem="2X1-7H-OdD" secondAttribute="trailing" id="r6c-6U-KoH"/>
+                            <constraint firstItem="2X1-7H-OdD" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="6nU-Nr-9oi"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="2X1-7H-OdD" secondAttribute="bottom" constant="358" id="C72-7g-HB5"/>
+                            <constraint firstItem="2X1-7H-OdD" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="34" id="TT3-ou-7Zu"/>
+                            <constraint firstAttribute="trailing" secondItem="2X1-7H-OdD" secondAttribute="trailing" id="j1M-aY-b31"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="Lyp-mH-jWO"/>

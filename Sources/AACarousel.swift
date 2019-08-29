@@ -321,7 +321,7 @@ public class AACarousel: UIView,UIScrollViewDelegate {
         carouselMode = displayModel.init(rawValue: displayStyle) ?? .full
         
         if (carouselMode == .banner) {
-            setShowShadown(show: true)
+            setShowShadown(true)
         }
         
         indicatorPosition = pageControlPosition.init(rawValue: pageIndicatorPositon) ?? .bottom
@@ -587,12 +587,32 @@ public class AACarousel: UIView,UIScrollViewDelegate {
         shadowCornerRadius = radius
     }
     
-    public func setShowShadown(show : Bool) {
+    public func setShowShadown(_ show : Bool) {
         showShadow = show
         
         beforeImageViewShadow.isHidden = !showShadow
         currentImageViewShadow.isHidden = !showShadow
         afterImageViewShadow.isHidden = !showShadow
+    }
+    
+    public func setShadowOffset(offset: CGSize) {
+        shadowOffset = offset
+        beforeImageViewShadow.layer.shadowOffset = shadowOffset
+    }
+    
+    public func setShadowColor(color: UIColor) {
+        shadowColor = color
+        beforeImageViewShadow.layer.shadowColor = shadowColor.cgColor
+    }
+    
+    public func setShadowRadius(radius: CGFloat) {
+        shadowRadius = radius
+        beforeImageViewShadow.layer.shadowRadius = shadowRadius
+    }
+    
+    public func setShadowOpacity(opacity: Float) {
+        shadowOpacity = opacity
+        beforeImageViewShadow.layer.shadowOpacity = shadowOpacity
     }
     
     //MARK:- handle scroll imageview frame
@@ -613,18 +633,18 @@ public class AACarousel: UIView,UIScrollViewDelegate {
     }
     
     fileprivate func handleBannerImageViewFrame(_ isScroll:Bool) {
-        let heightOffset: CGFloat = (showShadow ? -14 : 0)
-        let originYOffset: CGFloat = (showShadow ? 0 : 0)
+        let heightOffset: CGFloat = (showShadow ? -26 : 0)
+        let originYOffset: CGFloat = (showShadow ? 12 : 0)
         
         switch isScroll {
         case true:
-            beforeImageView.frame = CGRect.init(x: scrollView.frame.size.width + 30, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height + heightOffset))
-            afterImageView.frame = CGRect.init(x: scrollView.frame.size.width * 3 + 30, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height + heightOffset))
+            beforeImageView.frame = CGRect.init(x: scrollView.frame.size.width + 20, y: originYOffset, width: scrollView.frame.size.width - 40, height: (scrollView.frame.size.height + heightOffset))
+            afterImageView.frame = CGRect.init(x: scrollView.frame.size.width * 3 + 20, y: originYOffset, width: scrollView.frame.size.width - 40, height: (scrollView.frame.size.height + heightOffset))
             break
         default:
-            beforeImageView.frame = CGRect.init(x: scrollView.frame.size.width + 80, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height + heightOffset))
-            currentImageView.frame = CGRect.init(x: scrollView.frame.size.width * 2 + 30, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height + heightOffset))
-            afterImageView.frame = CGRect.init(x: scrollView.frame.size.width * 3 - 20, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height + heightOffset))
+            beforeImageView.frame = CGRect.init(x: scrollView.frame.size.width + 70, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height + heightOffset))
+            currentImageView.frame = CGRect.init(x: scrollView.frame.size.width * 2 + 20, y: originYOffset, width: scrollView.frame.size.width - 40, height: (scrollView.frame.size.height + heightOffset))
+            afterImageView.frame = CGRect.init(x: scrollView.frame.size.width * 3 - 10, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height + heightOffset))
             break
         }
         
