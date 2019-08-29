@@ -611,7 +611,7 @@ public class AACarousel: UIView,UIScrollViewDelegate {
     
     fileprivate func handleBannerImageViewFrame(_ isScroll:Bool) {
         let heightOffset: CGFloat = (showShadow ? 30 : 0)
-        let originYOffset: CGFloat = (showShadow ? 0 : 0)
+        let originYOffset: CGFloat = (showShadow ? 4 : 0)
         
         switch isScroll {
         case true:
