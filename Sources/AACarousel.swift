@@ -54,6 +54,11 @@ public class AACarousel: UIView,UIScrollViewDelegate {
     private var showShadow: Bool = false
     private var shadowCornerRadius: CGFloat = 10
     
+    private var shadowOffset: CGSize = CGSize(width: 0, height: 1)
+    private var shadowColor: UIColor = UIColor.black
+    private var shadowRadius: CGFloat = 7
+    private var shadowOpacity: Float = 0.4
+    
     override public init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -165,28 +170,28 @@ public class AACarousel: UIView,UIScrollViewDelegate {
         afterImageViewShadow = UIView()
         
         beforeImageViewShadow.backgroundColor = .clear
-        beforeImageViewShadow.layer.shadowOffset = CGSize(width: 0, height: 0)
-        beforeImageViewShadow.layer.shadowColor = UIColor.black.cgColor
-        beforeImageViewShadow.layer.shadowRadius = shadowCornerRadius
-        beforeImageViewShadow.layer.shadowOpacity = 0.5
+        beforeImageViewShadow.layer.shadowOffset = shadowOffset
+        beforeImageViewShadow.layer.shadowColor = shadowColor.cgColor
+        beforeImageViewShadow.layer.shadowRadius = shadowRadius
+        beforeImageViewShadow.layer.shadowOpacity = shadowOpacity
         beforeImageViewShadow.layer.masksToBounds = false
         beforeImageViewShadow.clipsToBounds = false
         beforeImageViewShadow.isHidden = !showShadow
         
         currentImageViewShadow.backgroundColor = .clear
-        currentImageViewShadow.layer.shadowOffset = CGSize(width: 0, height: 0)
-        currentImageViewShadow.layer.shadowColor = UIColor.black.cgColor
-        currentImageViewShadow.layer.shadowRadius = shadowCornerRadius
-        currentImageViewShadow.layer.shadowOpacity = 0.5
+        currentImageViewShadow.layer.shadowOffset = shadowOffset
+        currentImageViewShadow.layer.shadowColor = shadowColor.cgColor
+        currentImageViewShadow.layer.shadowRadius = shadowRadius
+        currentImageViewShadow.layer.shadowOpacity = shadowOpacity
         currentImageViewShadow.layer.masksToBounds = false
         currentImageViewShadow.clipsToBounds = false
         currentImageViewShadow.isHidden = !showShadow
         
         afterImageViewShadow.backgroundColor = .clear
-        afterImageViewShadow.layer.shadowOffset = CGSize(width: 0, height: 0)
-        afterImageViewShadow.layer.shadowColor = UIColor.black.cgColor
-        afterImageViewShadow.layer.shadowRadius = shadowCornerRadius
-        afterImageViewShadow.layer.shadowOpacity = 0.5
+        afterImageViewShadow.layer.shadowOffset = shadowOffset
+        afterImageViewShadow.layer.shadowColor = shadowColor.cgColor
+        afterImageViewShadow.layer.shadowRadius = shadowRadius
+        afterImageViewShadow.layer.shadowOpacity = shadowOpacity
         afterImageViewShadow.layer.masksToBounds = false
         afterImageViewShadow.clipsToBounds = false
         afterImageViewShadow.isHidden = !showShadow
@@ -272,9 +277,7 @@ public class AACarousel: UIView,UIScrollViewDelegate {
     }
     
     fileprivate func setImageViewShadowFrame() {
-        beforeImageViewShadow.frame = CGRect(x: beforeImageView.frame.origin.x, y: beforeImageView.frame.origin.y + 10, width: beforeImageView.frame.width, height: beforeImageView.frame.height)
-        currentImageViewShadow.frame = CGRect(x: currentImageView.frame.origin.x, y: currentImageView.frame.origin.y + 10, width: currentImageView.frame.width, height: currentImageView.frame.height)
-        afterImageViewShadow.frame = CGRect(x: afterImageView.frame.origin.x, y: afterImageView.frame.origin.y + 10, width: afterImageView.frame.width, height: afterImageView.frame.height)
+        handleBannerImageViewShadowFrame(false)
     }
     
     fileprivate func setLabelFrame() {
@@ -610,18 +613,18 @@ public class AACarousel: UIView,UIScrollViewDelegate {
     }
     
     fileprivate func handleBannerImageViewFrame(_ isScroll:Bool) {
-        let heightOffset: CGFloat = (showShadow ? 30 : 0)
-        let originYOffset: CGFloat = (showShadow ? 4 : 0)
+        let heightOffset: CGFloat = (showShadow ? -14 : 0)
+        let originYOffset: CGFloat = (showShadow ? 0 : 0)
         
         switch isScroll {
         case true:
-            beforeImageView.frame = CGRect.init(x: scrollView.frame.size.width + 30, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height - heightOffset))
-            afterImageView.frame = CGRect.init(x: scrollView.frame.size.width * 3 + 30, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height - heightOffset))
+            beforeImageView.frame = CGRect.init(x: scrollView.frame.size.width + 30, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height + heightOffset))
+            afterImageView.frame = CGRect.init(x: scrollView.frame.size.width * 3 + 30, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height + heightOffset))
             break
         default:
-            beforeImageView.frame = CGRect.init(x: scrollView.frame.size.width + 80, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height - heightOffset))
-            currentImageView.frame = CGRect.init(x: scrollView.frame.size.width * 2 + 30, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height - heightOffset))
-            afterImageView.frame = CGRect.init(x: scrollView.frame.size.width * 3 - 20, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height - heightOffset))
+            beforeImageView.frame = CGRect.init(x: scrollView.frame.size.width + 80, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height + heightOffset))
+            currentImageView.frame = CGRect.init(x: scrollView.frame.size.width * 2 + 30, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height + heightOffset))
+            afterImageView.frame = CGRect.init(x: scrollView.frame.size.width * 3 - 20, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height + heightOffset))
             break
         }
         
@@ -629,9 +632,12 @@ public class AACarousel: UIView,UIScrollViewDelegate {
     
     
     fileprivate func handleBannerImageViewShadowFrame(_ isScroll:Bool) {
-        beforeImageViewShadow.frame = CGRect(x: beforeImageView.frame.origin.x, y: beforeImageView.frame.origin.y + 10, width: beforeImageView.frame.width, height: beforeImageView.frame.height)
-        currentImageViewShadow.frame = CGRect(x: currentImageView.frame.origin.x, y: currentImageView.frame.origin.y + 10, width: currentImageView.frame.width, height: currentImageView.frame.height)
-        afterImageViewShadow.frame = CGRect(x: afterImageView.frame.origin.x, y: afterImageView.frame.origin.y + 10, width: afterImageView.frame.width, height: afterImageView.frame.height)
+        let heightOffset: CGFloat = (showShadow ? 0 : 0)
+        let originYOffset: CGFloat = (showShadow ? 0 : 0)
+        
+        beforeImageViewShadow.frame = CGRect(x: beforeImageView.frame.origin.x, y: beforeImageView.frame.origin.y + originYOffset, width: beforeImageView.frame.width, height: beforeImageView.frame.height + heightOffset)
+        currentImageViewShadow.frame = CGRect(x: currentImageView.frame.origin.x, y: currentImageView.frame.origin.y + originYOffset, width: currentImageView.frame.width, height: currentImageView.frame.height + heightOffset)
+        afterImageViewShadow.frame = CGRect(x: afterImageView.frame.origin.x, y: afterImageView.frame.origin.y + originYOffset, width: afterImageView.frame.width, height: afterImageView.frame.height + heightOffset)
         
         beforeImageViewShadow.layer.shadowPath = UIBezierPath(roundedRect: beforeImageView.bounds, cornerRadius: shadowCornerRadius).cgPath
         currentImageViewShadow.layer.shadowPath = UIBezierPath(roundedRect: currentImageView.bounds, cornerRadius: shadowCornerRadius).cgPath
