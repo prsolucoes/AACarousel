@@ -9,9 +9,9 @@
 import UIKit
 
 public protocol AACarouselDelegate {
-   func didSelectCarouselView(_ view:AACarousel, _ index:Int)
-   func callBackFirstDisplayView(_ imageView:UIImageView, _ url:[String], _ index:Int)
-   func downloadImages(_ url:String, _ index:Int)
+    func didSelectCarouselView(_ view:AACarousel, _ index:Int)
+    func callBackFirstDisplayView(_ imageView:UIImageView, _ url:[String], _ index:Int)
+    func downloadImages(_ url:String, _ index:Int)
 }
 
 let needDownload = "http"
@@ -27,16 +27,22 @@ public class AACarousel: UIView,UIScrollViewDelegate {
         case top = 0, center = 1, bottom = 2, topLeft = 3, bottomLeft = 4, topRight = 5, bottomRight = 6
     }
     public enum displayModel:Int {
-        case full = 0, halfFull = 1
+        case full = 0, halfFull = 1, banner = 2
     }
     //MARK:- private property
     private var scrollView:UIScrollView!
     private var describedLabel:UILabel!
     private var layerView:UIView!
     private var pageControl:UIPageControl!
+    
     private var beforeImageView:UIImageView!
     private var currentImageView:UIImageView!
     private var afterImageView:UIImageView!
+    
+    private var beforeImageViewShadow:UIView!
+    private var currentImageViewShadow:UIView!
+    private var afterImageViewShadow:UIView!
+    
     private var currentIndex:NSInteger!
     private var describedString = [String]()
     private var timer:Timer?
@@ -45,10 +51,14 @@ public class AACarousel: UIView,UIScrollViewDelegate {
     private var indicatorPosition:pageControlPosition = pageControlPosition.bottom
     private var carouselMode:displayModel = displayModel.full
     
+    private var showShadow: Bool = false
+    private var shadowCornerRadius: CGFloat = 10
+    
     override public init(frame: CGRect) {
         super.init(frame: frame)
         
         initWithScrollView()
+        initWithImageViewShadow()
         initWithImageView()
         initWithLayerView()
         initWithLabel()
@@ -63,6 +73,7 @@ public class AACarousel: UIView,UIScrollViewDelegate {
         
         setScrollViewFrame()
         setImageViewFrame()
+        setImageViewShadowFrame()
         setLayerViewFrame()
         setLabelFrame()
         setPageControlFrame()
@@ -75,6 +86,7 @@ public class AACarousel: UIView,UIScrollViewDelegate {
         super.awakeFromNib()
         
         initWithScrollView()
+        initWithImageViewShadow()
         initWithImageView()
         initWithLayerView()
         initWithLabel()
@@ -147,19 +159,56 @@ public class AACarousel: UIView,UIScrollViewDelegate {
         
     }
     
+    fileprivate func initWithImageViewShadow() {
+        beforeImageViewShadow = UIView()
+        currentImageViewShadow = UIView()
+        afterImageViewShadow = UIView()
+        
+        beforeImageViewShadow.backgroundColor = .clear
+        beforeImageViewShadow.layer.shadowOffset = CGSize(width: 0, height: 0)
+        beforeImageViewShadow.layer.shadowColor = UIColor.black.cgColor
+        beforeImageViewShadow.layer.shadowRadius = shadowCornerRadius
+        beforeImageViewShadow.layer.shadowOpacity = 0.5
+        beforeImageViewShadow.layer.masksToBounds = false
+        beforeImageViewShadow.clipsToBounds = false
+        beforeImageViewShadow.isHidden = !showShadow
+        
+        currentImageViewShadow.backgroundColor = .clear
+        currentImageViewShadow.layer.shadowOffset = CGSize(width: 0, height: 0)
+        currentImageViewShadow.layer.shadowColor = UIColor.black.cgColor
+        currentImageViewShadow.layer.shadowRadius = shadowCornerRadius
+        currentImageViewShadow.layer.shadowOpacity = 0.5
+        currentImageViewShadow.layer.masksToBounds = false
+        currentImageViewShadow.clipsToBounds = false
+        currentImageViewShadow.isHidden = !showShadow
+        
+        afterImageViewShadow.backgroundColor = .clear
+        afterImageViewShadow.layer.shadowOffset = CGSize(width: 0, height: 0)
+        afterImageViewShadow.layer.shadowColor = UIColor.black.cgColor
+        afterImageViewShadow.layer.shadowRadius = shadowCornerRadius
+        afterImageViewShadow.layer.shadowOpacity = 0.5
+        afterImageViewShadow.layer.masksToBounds = false
+        afterImageViewShadow.clipsToBounds = false
+        afterImageViewShadow.isHidden = !showShadow
+        
+        scrollView.addSubview(beforeImageViewShadow)
+        scrollView.addSubview(currentImageViewShadow)
+        scrollView.addSubview(afterImageViewShadow)
+    }
+    
     fileprivate func initWithGestureRecognizer() {
         
         let singleFinger = UITapGestureRecognizer(target: self, action: #selector(didSelectImageView(_:)))
         
         addGestureRecognizer(singleFinger)
     }
-   
+    
     fileprivate func initWithData(_ paths:[String],_ describedTitle:[String]) {
         
         currentIndex = 0
         images.removeAll()
         images.reserveCapacity(paths.count)
-     
+        
         //default image
         for _ in 0..<paths.count {
             images.append(UIImage(named: defaultImg ?? "") ?? UIImage())
@@ -215,13 +264,23 @@ public class AACarousel: UIView,UIScrollViewDelegate {
             beforeImageView.alpha = 0.6
             afterImageView.alpha = 0.6
             break
+        case .banner:
+            handleBannerImageViewFrame(false)
+            handleBannerImageViewShadowFrame(false)
+            break
         }
+    }
+    
+    fileprivate func setImageViewShadowFrame() {
+        beforeImageViewShadow.frame = CGRect(x: beforeImageView.frame.origin.x, y: beforeImageView.frame.origin.y + 10, width: beforeImageView.frame.width, height: beforeImageView.frame.height)
+        currentImageViewShadow.frame = CGRect(x: currentImageView.frame.origin.x, y: currentImageView.frame.origin.y + 10, width: currentImageView.frame.width, height: currentImageView.frame.height)
+        afterImageViewShadow.frame = CGRect(x: afterImageView.frame.origin.x, y: afterImageView.frame.origin.y + 10, width: afterImageView.frame.width, height: afterImageView.frame.height)
     }
     
     fileprivate func setLabelFrame() {
         
         describedLabel.frame = CGRect.init(x: scrollView.frame.size.width * 2 + 10 , y: layerView.frame.size.height - 75, width: scrollView.frame.size.width - 20, height: 70)
-    
+        
     }
     
     
@@ -257,6 +316,11 @@ public class AACarousel: UIView,UIScrollViewDelegate {
     public func setCarouselLayout(displayStyle:Int, pageIndicatorPositon:Int, pageIndicatorColor:UIColor?, describedTitleColor:UIColor?, layerColor:UIColor?) {
         
         carouselMode = displayModel.init(rawValue: displayStyle) ?? .full
+        
+        if (carouselMode == .banner) {
+            setShowShadown(show: true)
+        }
+        
         indicatorPosition = pageControlPosition.init(rawValue: pageIndicatorPositon) ?? .bottom
         pageControl.currentPageIndicatorTintColor = pageIndicatorColor ?? .white
         describedLabel.textColor = describedTitleColor ?? .white
@@ -266,13 +330,13 @@ public class AACarousel: UIView,UIScrollViewDelegate {
     
     //MARK:- set subviews show method
     public func setCarouselOpaque(layer:Bool, describedTitle:Bool, pageIndicator:Bool) {
-    
+        
         layerView.isHidden = layer
         describedLabel.isHidden = describedTitle
         pageControl.isHidden = pageIndicator
     }
     
-   
+    
     //MARK:- set data method
     public func setCarouselData(paths:[String],describedTitle:[String],isAutoScroll:Bool,timer:Double?,defaultImage:String?) {
         
@@ -392,6 +456,12 @@ public class AACarousel: UIView,UIScrollViewDelegate {
             }, completion: nil)
             
             break
+        case .banner:
+            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseInOut, animations: {
+                self.handleBannerImageViewFrame(false)
+                self.handleBannerImageViewShadowFrame(false)
+            }, completion: nil)
+            break
         }
         
         scrollView.contentOffset = CGPoint.init(x: frame.size.width * 2, y: 0)
@@ -412,12 +482,16 @@ public class AACarousel: UIView,UIScrollViewDelegate {
     }
     
     @objc fileprivate func autoScrollToNextImageView() {
-       
+        
         switch carouselMode {
         case .full:
             break
         case .halfFull:
             handleHalfFullImageViewFrame(true)
+            break
+        case .banner:
+            handleBannerImageViewFrame(true)
+            handleBannerImageViewShadowFrame(true)
             break
         }
         scrollView.setContentOffset(CGPoint.init(x: frame.size.width * 3, y: 0), animated: true)
@@ -425,12 +499,16 @@ public class AACarousel: UIView,UIScrollViewDelegate {
     }
     
     @objc fileprivate func autoScrollToBeforeImageView() {
-       
+        
         switch carouselMode {
         case .full:
             break
         case .halfFull:
             handleHalfFullImageViewFrame(true)
+            break
+        case .banner:
+            handleBannerImageViewFrame(true)
+            handleBannerImageViewShadowFrame(true)
             break
         }
         scrollView.setContentOffset(CGPoint.init(x: frame.size.width * 1, y: 0), animated: true)
@@ -444,7 +522,7 @@ public class AACarousel: UIView,UIScrollViewDelegate {
         delegate?.didSelectCarouselView(self, currentIndex)
     }
     
-   
+    
     //MARK:- UIScrollViewDelegate
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
@@ -475,15 +553,43 @@ public class AACarousel: UIView,UIScrollViewDelegate {
         case .halfFull:
             handleHalfFullImageViewFrame(true)
             break
+        case .banner:
+            handleBannerImageViewFrame(true)
+            handleBannerImageViewShadowFrame(true)
+            break
         }
         stopAutoScroll()
     }
     
     
     public func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-       
+        
         startAutoScroll()
         
+    }
+    
+    public func setImageViewContentMode(contentMode: UIView.ContentMode) {
+        beforeImageView.contentMode = contentMode
+        currentImageView.contentMode = contentMode
+        afterImageView.contentMode = contentMode
+    }
+    
+    public func setImageViewCornerRadius(radius: CGFloat) {
+        beforeImageView.layer.cornerRadius = radius
+        currentImageView.layer.cornerRadius = radius
+        afterImageView.layer.cornerRadius = radius
+    }
+    
+    public func setShadownCornerRadius(radius: CGFloat) {
+        shadowCornerRadius = radius
+    }
+    
+    public func setShowShadown(show : Bool) {
+        showShadow = show
+        
+        beforeImageViewShadow.isHidden = !showShadow
+        currentImageViewShadow.isHidden = !showShadow
+        afterImageViewShadow.isHidden = !showShadow
     }
     
     //MARK:- handle scroll imageview frame
@@ -501,8 +607,37 @@ public class AACarousel: UIView,UIScrollViewDelegate {
             break
         }
         
-       
     }
+    
+    fileprivate func handleBannerImageViewFrame(_ isScroll:Bool) {
+        let heightOffset: CGFloat = (showShadow ? 30 : 0)
+        let originYOffset: CGFloat = (showShadow ? 0 : 0)
+        
+        switch isScroll {
+        case true:
+            beforeImageView.frame = CGRect.init(x: scrollView.frame.size.width + 30, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height - heightOffset))
+            afterImageView.frame = CGRect.init(x: scrollView.frame.size.width * 3 + 30, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height - heightOffset))
+            break
+        default:
+            beforeImageView.frame = CGRect.init(x: scrollView.frame.size.width + 80, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height - heightOffset))
+            currentImageView.frame = CGRect.init(x: scrollView.frame.size.width * 2 + 30, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height - heightOffset))
+            afterImageView.frame = CGRect.init(x: scrollView.frame.size.width * 3 - 20, y: originYOffset, width: scrollView.frame.size.width - 60, height: (scrollView.frame.size.height - heightOffset))
+            break
+        }
+        
+    }
+    
+    
+    fileprivate func handleBannerImageViewShadowFrame(_ isScroll:Bool) {
+        beforeImageViewShadow.frame = CGRect(x: beforeImageView.frame.origin.x, y: beforeImageView.frame.origin.y + 10, width: beforeImageView.frame.width, height: beforeImageView.frame.height)
+        currentImageViewShadow.frame = CGRect(x: currentImageView.frame.origin.x, y: currentImageView.frame.origin.y + 10, width: currentImageView.frame.width, height: currentImageView.frame.height)
+        afterImageViewShadow.frame = CGRect(x: afterImageView.frame.origin.x, y: afterImageView.frame.origin.y + 10, width: afterImageView.frame.width, height: afterImageView.frame.height)
+        
+        beforeImageViewShadow.layer.shadowPath = UIBezierPath(roundedRect: beforeImageView.bounds, cornerRadius: shadowCornerRadius).cgPath
+        currentImageViewShadow.layer.shadowPath = UIBezierPath(roundedRect: currentImageView.bounds, cornerRadius: shadowCornerRadius).cgPath
+        afterImageViewShadow.layer.shadowPath = UIBezierPath(roundedRect: afterImageView.bounds, cornerRadius: shadowCornerRadius).cgPath
+    }
+    
     
     //MARK:- handle current index
     fileprivate func handleIndex(_ scrollDirect:direction) {
@@ -544,7 +679,7 @@ public class AACarousel: UIView,UIScrollViewDelegate {
         stopAutoScroll()
     }
     
-   
+    
     
 }
 
